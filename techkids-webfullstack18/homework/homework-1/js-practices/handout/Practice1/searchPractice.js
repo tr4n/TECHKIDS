@@ -2,14 +2,10 @@
 
 
 function search(input, target) {
-    var position = -1;
-    for (var index = 0; index < input.length; index++) {
-        if (input[index] == target) {
-            position = index;
-            break;
-        }
-    }
-    return position;
+    input.forEach((item, index) => {
+        if (item == target) return index;
+    });
+    return -1;
 }
 
 module.exports = search
