@@ -59,7 +59,9 @@ function getNotFoundElement(array) {
 function createArray(length, maxValue, unsign) {
     var array = [];
     while (length-- > 0) {
-        var element = unsign == true ? 4 + parseInt(maxValue * Math.random()) : parseInt(2 * maxValue * Math.random()) - maxValue;
+        var element = 
+            unsign == true ? 4 + parseInt(maxValue * Math.random()) 
+                            : parseInt(2 * maxValue * Math.random()) - maxValue;
 
         array.push(element);
 
