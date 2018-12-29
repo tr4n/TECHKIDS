@@ -6,44 +6,42 @@ var ObjectGenerator = {
     LAST_INDEX: 2,
     MIDDLE_INDEX: 3,
     MAX_VALUE: 19981,
-    createArray: function(length, maxValue, unsign) {
+
+    createArray(length, maxValue, unsign) {
         var array = [];
         while (length-- > 0) {
-            var element =
-                unsign == true ? 4 + parseInt(maxValue * Math.random()) :
-                parseInt(2 * maxValue * Math.random()) - maxValue;
-
-            array.push(element);
-
+            array.push(parseInt(2 * maxValue * Math.random()) - maxValue);
         }
         return array;
     },
-    getRandomMode: function() {
-        var rand = Math.random() * 100;
-        return rand < 10 ? NOT_FOUND : rand < 40 ? FIRST_INDEX : rand < 70 ? LAST_INDEX : MIDDLE_INDEX;
+
+    generateMode() {
+        var rand = Math.random() * 10;
+        return rand < 1 ? this.NOT_FOUND : rand < 3 ? this.FIRST_INDEX : rand < 5 ? this.LAST_INDEX : this.MIDDLE_INDEX;
     },
-    createObject: function(arrayLength, mode) {
-        var input = this.createArray(arrayLength, MAX_VALUE, false);
-        var target = MAX_VALUE,
-            output = NOT_FOUND;
+
+    generateObject(length, mode) {
+        var input = this.createArray(length, this.MAX_VALUE, false);
+        var target = this.MAX_VALUE,
+            output = this.NOT_FOUND;
         input.sort();
         switch (mode) {
-            case NOT_FOUND:
-                target = MAX_VALUE + parseInt(Math.random() * 10 + 2);
-                output = NOT_FOUND;
+            case this.NOT_FOUND:
+                target = this.MAX_VALUE + parseInt(Math.random() * 10 + 2);
+                output = this.NOT_FOUND;
                 break;
-            case FIRST_INDEX:
+            case this.FIRST_INDEX:
                 target = input[0];
                 output = 0;
                 output = input.indexOf(target);
                 break;
-            case LAST_INDEX:
-                output = arrayLength - 1;
-                target = input[arrayLength - 1];
+            case this.LAST_INDEX:
+                output = length - 1;
+                target = input[length - 1];
                 output = input.indexOf(target);
                 break;
-            case MIDDLE_INDEX:
-                output = arrayLength > 2 ? 1 + parseInt(Math.random() * (arrayLength - 2)) : 0;
+            case this.MIDDLE_INDEX:
+                output = length > 2 ? 1 + parseInt(Math.random() * (length - 2)) : 0;
                 target = input[output];
                 output = input.indexOf(target);
                 break;
@@ -54,22 +52,22 @@ var ObjectGenerator = {
             "output": output
         }
     },
-    generateArray(lengths) {
+    generateObjectArray(testLengthArray) {
         var generatedArray = [];
 
-        if (lengths.length >= 4) {
-            generatedArray.push(ObjectGenerator.createObject(lengths[0], NOT_FOUND));
-            generatedArray.push(ObjectGenerator.createObject(lengths[1], FIRST_INDEX));
-            generatedArray.push(ObjectGenerator.createObject(lengths[2], LAST_INDEX));
-            generatedArray.push(ObjectGenerator.createObject(lengths[3], MIDDLE_INDEX));
+        if (testLengthArray.length >= 4) {
+            generatedArray.push(ObjectGenerator.generateObject(testLengthArray[0], this.NOT_FOUND));
+            generatedArray.push(ObjectGenerator.generateObject(testLengthArray[1], this.FIRST_INDEX));
+            generatedArray.push(ObjectGenerator.generateObject(testLengthArray[2], this.LAST_INDEX));
+            generatedArray.push(ObjectGenerator.generateObject(testLengthArray[3], this.MIDDLE_INDEX));
 
-            for (var index = 4; index < lengths.length; index++) {
-                generatedArray.push(ObjectGenerator.createObject(lengths[index], ObjectGenerator.getRandomMode()));
+            for (var index = 4; index < testLengthArray.length; index++) {
+                generatedArray.push(ObjectGenerator.generateObject(testLengthArray[index], ObjectGenerator.generateMode()));
             }
 
         } else {
-            lengths.forEach(element => {
-                generatedArray.push(ObjectGenerator.createArray(element, ObjectGenerator.getRandomMode()));
+            testLengthArray.forEach(element => {
+                generatedArray.push(ObjectGenerator.createArray(element, ObjectGenerator.generateMode()));
             });
 
         }
@@ -80,7 +78,7 @@ var ObjectGenerator = {
 
 function generate(testLengthArray) {
 
-    return ObjectGenerator.generateArray(testLengthArray);
+    return ObjectGenerator.generateObjectArray(testLengthArray);
 }
 
 module.exports = generate

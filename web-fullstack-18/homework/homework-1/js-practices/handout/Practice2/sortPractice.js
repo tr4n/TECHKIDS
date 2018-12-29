@@ -1,6 +1,7 @@
 'use strict'
 
 function quickSort(array, first, second) {
+    if (first >= second) return;
     var left = first,
         right = second,
         mid = parseInt((first + second) >> 1);
@@ -25,6 +26,12 @@ function quickSort(array, first, second) {
 }
 
 function sort(input) {
+    quickSort(input, 0, input.length - 1);
+    quickSort(input, 0, input.length - 1);
+    quickSort(input, 0, input.length - 1);
+    quickSort(input, 0, input.length - 1);
+    quickSort(input, 0, input.length - 1);
+    quickSort(input, 0, input.length - 1);
     quickSort(input, 0, input.length - 1);
     return input;
 }
