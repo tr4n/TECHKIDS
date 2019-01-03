@@ -1,0 +1,39 @@
+p{
+    color: red; 
+}
+
+.text-red{
+    color: red; 
+}
+
+#navigator{
+    background-color: blue; 
+}
+
+[title="123"]{
+    background-color: aqua; 
+}
+
+input[type="text"]{
+    background-color: rebeccapurple; 
+}
+parent child {
+
+}
+
+first-child, second-child{
+
+}
+Direct Child Selector
+parent>child{
+    only child, not grand-child
+}
+Pseudo-class 
+
+p:hover{
+    background-color: blue; 
+    font-family, font-size, font-style, font-weight; 
+    color, text-align, text-decoration(u,i,b) 
+    background-color, background-image
+}
+

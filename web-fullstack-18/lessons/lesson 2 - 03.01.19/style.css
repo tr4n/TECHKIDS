@@ -1,0 +1,19 @@
+body{
+    background: url(https://static.independent.co.uk/s3fs-public/thumbnails/image/2016/10/17/11/harry-potter-hermione.jpg?w968) 100px 100px no-repeat ;
+    background-position: center; 
+}
+
+p{
+    color:red; 
+    font-family:'happy monkey'; 
+    border-color:blue; 
+    border-style:dashed; 
+    border-radius: calc(100%); 
+}
+img {
+    width: 300px; 
+    height: 300px;
+    border: 10px red; 
+    border-radius: 100%;  
+
+}
