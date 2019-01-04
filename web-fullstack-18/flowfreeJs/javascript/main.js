@@ -29,59 +29,7 @@ var PointManager = {
     }
 }
 
-var StateManager = {
-    getDefaultState() {
-        return {
-            width: 3,
-            height: 3,
-            value: "101223300",
-            numberFlows: 3
-        };
-    },
 
-    initState(_width, _height) {
-        var value = "",
-            temp = _width * _height;
-        while (temp--) {
-            value += "0"
-        };
-        return {
-            width: _width,
-            height: _height,
-            value: value,
-            numberFlows: Math.floor(Math.sqrt(_width * _height))
-        }
-    },
-
-    newState(_width, _height, _value) {
-        return {
-            width: _width,
-            height: _height,
-            value: _value,
-            numberFlows: Math.floor(Math.sqrt(_width * _height))
-        }
-    },
-
-    showState(state) {
-        if (!state) return;
-        if (state.width && state.height && state.value && state.numberFlows) {
-            var firstIndex = 0,
-                secondIndex = state.width;
-            while (firstIndex < state.value.length) {
-                console.log(state.value.substring(firstIndex, secondIndex));
-
-                firstIndex += state.width;
-                secondIndex += state.width;
-            }
-        }
-
-    },
-
-    getNumberFlows(state) {
-
-    }
-
-}
 
 var FlowManager = {
     getDefaultFlow() {
@@ -145,7 +93,7 @@ var FlowManager = {
 
 
         while (currentSize < finalSize) {
-            console.log("currentSize: " + currentSize + " finalSize: " + finalSize);
+            //  console.log("currentSize: " + currentSize + " finalSize: " + finalSize);
             tempArray.length = 0;
             tempArray.push.apply(tempArray, output);
             output.length = 0;
@@ -155,7 +103,7 @@ var FlowManager = {
                 if (this.length(flow) > 4 && currentSize < finalSize) {
                     let randomPosition = Random.nextInt(this.length(flow) - 4);
                     output.push.apply(output, this.split(flow, randomPosition + 2));
-                 
+
                     currentSize++;
                 } else if (this.length(flow) == 4 && currentSize < finalSize) {
                     output.push.apply(output, this.split(flow, 2));
@@ -187,22 +135,35 @@ var Show = {
             Console.log(table[i]);
         }
 
+    }, //#endregion
+
+    showState(state) {
+        console.log("---------State----------");
+        let value = state.value;
+        let firstIndex = 0,
+            secondIndex = state.width; //#endregion
+
+        while (firstIndex < state.height * state.width) {
+            console.log(value.substring(firstIndex, secondIndex));
+            firstIndex += state.width; //#endregion
+            secondIndex += state.width;
+        }
     }
 }
 
-var StateTableGenerator = {
+var ResultFlows = {
     pointNumber: 0,
     width: 5,
     height: 5,
-    table: [],
     specialPoint: null,
+    table: [],
     flowArray: [],
     finalFlowList: [],
     flowNumber: -2,
     numberFlows: 5,
 
     getNewTable() {
-        var tempTable = [];
+        let tempTable = [];
         for (let _line = 0; _line < this.height; _line++) {
             let tempArray = [];
             for (let _col = 0; _col < this.width; _col++) {
@@ -229,19 +190,12 @@ var StateTableGenerator = {
         return null;
     },
 
-    getNumberFlows(minFlows) {
-        let maxFlows = Math.sqrt(this.width * this.height);
-        if (minFlows > maxFlows) return minFlows;
-        this.numberFlows =  minFlows + Random.nextInt(maxFlows - minFlows + 3);
-        return this.numberFlows > maxFlows ? maxFlows : this.numberFlows;
-    },
-
-    generateTable(_width, _height) {
+    initResultFlows(_width, _height) {
         this.width = _width;
         this.height = _height;
+        this.table = this.getTable();
+        return this.finalFlowList;
 
-        this.table = this.getFilledFlowTable();
-        return this.table;
     },
 
     getDominoTable() {
@@ -252,7 +206,7 @@ var StateTableGenerator = {
             }
         }
 
-        var dominoNumber = 0;
+        let dominoNumber = 0;
         for (let _line = 0; _line < this.height; _line++) {
             for (let _col = 0; _col < this.width; _col++) {
                 if (tempTable[_line][_col] == -1) {
@@ -261,10 +215,10 @@ var StateTableGenerator = {
                     } else if (_col == this.width - 1 && _line > 1 && tempTable[_line - 1][_col] == -1) {
                         tempTable[_line][_col] = tempTable[_line - 1][_col] = dominoNumber++;
                     } else {
-                        var k = Random.nextInt(Constants.RANDOM_DIRECTS.length);
+                        let k = Random.nextInt(Constants.RANDOM_DIRECTS.length);
                         for (let index = 0; index < 4; index++) {
                             let dir = ((Constants.RANDOM_DIRECTS[k][index]).charCodeAt(0) - ('0').charCodeAt(0));
-                            var checkX = _line + Constants.DIRECT_X[dir],
+                            let checkX = _line + Constants.DIRECT_X[dir],
                                 checkY = _col + Constants.DIRECT_Y[dir];
                             if (!this.isInside(checkX, checkY, this.width, this.height)) continue;
                             if (tempTable[checkX][checkY] != -1) continue;
@@ -374,9 +328,9 @@ var StateTableGenerator = {
             }
             this.flowNumber--;
         } else {
-            var x = PointManager.getX(this.specialPoint);
-            var y = PointManager.getY(this.specialPoint);
-            var tmpflow = this.fillFlow(_table, x, y);
+            let x = PointManager.getX(this.specialPoint);
+            let y = PointManager.getY(this.specialPoint);
+            let tmpflow = this.fillFlow(_table, x, y);
             if (tmpflow != null && FlowManager.length(tmpflow) > 0)
                 this.flowArray.push(tmpflow);
 
@@ -399,8 +353,16 @@ var StateTableGenerator = {
         }
         return tempTable;
     },
+    getNumberFlows(minFlows, maxFlows) {
 
-    getFilledFlowTable() {
+        if (minFlows > maxFlows) return minFlows;
+        this.numberFlows = minFlows + Random.nextInt(maxFlows  - minFlows + 1);
+        let root = Math.floor(Math.sqrt(this.width * this.height));
+        return maxFlows > root ? Math.random() > 0.5 ? root : this.numberFlows : this.numberFlows; 
+    },
+
+    getTable() {
+
         let tempTable = this.getFilledColorTable();
         this.executeSpecialPoint(tempTable, Constants.CREATE_FLOW);
         for (let line = 0; line < this.height; line++) {
@@ -412,7 +374,13 @@ var StateTableGenerator = {
 
             }
         }
-        let finalSize = this.getNumberFlows(this.flowArray.length);
+
+        let minSize = this.flowArray.length,
+            maxSize = 0;
+        this.flowArray.forEach(element => {
+            maxSize += Math.floor(FlowManager.length(element));
+        });
+        let finalSize = this.getNumberFlows(minSize, maxSize);
         this.finalFlowList = FlowManager.getFinalFlowArray(this.flowArray, finalSize);
 
         return tempTable;
@@ -420,13 +388,87 @@ var StateTableGenerator = {
     }
 
 
+}
+
+var StateManager = {
+    width: 3, //#endregion
+    height: 3, //#endregion
+    value: "A.ABBCC..", //#endregion
+    result: [0, 1, 2, 3, 4, 5, 8, 7, 6],
+
+    initDefalutState() {
+        return {
+            width: 3,
+            height: 3,
+            value: "A.ABBCC..",
+            result: [0, 1, 2, 3, 4, 5, 8, 7, 6]
+        };
+    },
+
+    initRandomState(_width, _height) {
+        let width = _width,
+            height = _height;
+        let value = "",
+            result = [];
+        let flowList = ResultFlows.initResultFlows(width, height);
+        let valueArray = [];
+        for (let index = 0; index < width * height; index++) {
+            valueArray.push(".");
+        }
+        flowList.forEach((flow, index) => {
+            valueArray[FlowManager.getHead(flow)] = valueArray[FlowManager.getTail(flow)] = String.fromCharCode('A'.charCodeAt(0) + index);
+
+            flow.pointArray.forEach(point => {
+                result.push(point);
+            });
+        });
+        valueArray.forEach(element => {
+            value += element;
+        });
+        return {
+            width: _width,
+            height: _height, //#endregion
+            value: value, //#endregion
+            result: result
+        };
+
+    },
+
+    solve(state) {
+        //#endregion
+        Show.showState(state); //#endregion
+
+        let result = state.result,
+            value = state.value,
+            valueArray = []; //#endregion
+        let currentChar = 'a';
+
+        for (let index = 0; index < state.width * state.height; index++) {
+            valueArray.push('.');
+        }
+        result.forEach(element => {
+            if (value[element] != '.') {
+                valueArray[element] = value[element];
+                currentChar = String.fromCharCode(value[element].charCodeAt(0) - 'A'.charCodeAt(0) + 'a'.charCodeAt(0));
+
+            } else {
+                valueArray[element] = currentChar;
+            }
+        });
+        let newValue = "";
+        valueArray.forEach(element => {
+            newValue += element;
+        });
+        Show.showState({
+            width: state.width, //#endregion
+            height: state.height, //#endregion
+            value: newValue, //#endregion
+            result: state.result
+        });
+    }
+
+
 
 }
 
-
-
-console.log(StateTableGenerator.generateTable(5, 5));
-console.log("array----------------------");
-console.log(StateTableGenerator.flowArray);
-console.log("---------------------------final")
-console.log(StateTableGenerator.finalFlowList);
+StateManager.solve(StateManager.initRandomState(8, 8));
