@@ -102,7 +102,7 @@ var FlowManager = {
 
     length(flow) {
         if (flow == null) return -1;
-        i
+
         if (flow.pointArray == null) return -1;
         return flow.pointArray.length;
     },
@@ -122,46 +122,52 @@ var FlowManager = {
     },
 
     add(flow, position) {
-        flow.pointArray.add(position);
+        flow.pointArray.push(position);
         return position;
     },
 
     split(flow, index) {
-        return [
-            this.newFlow(flow.pointArray.slice(0, index)),
-            this.newFlow(flow.pointArray.slice(index, this.length(flow)))
+        return [{
+                pointArray: (flow.pointArray.slice(0, index))
+            },
+            {
+                pointArray: (flow.pointArray.slice(index, this.length(flow)))
+            }
         ];
+
     },
 
-    getFlowArray(flowArray, size) {
-        var targetFlowArray = [];
-        var tempArray = [];
-        targetFlowArray = flowArray.slice();
-        var currentSize = flowArray.length;
+    getFinalFlowArray(input, finalSize) {
+        let output = [];
+        let tempArray = [];
+        output.push.apply(output, input);
+        let currentSize = input.length;
 
-        while (currentSize < size) {
-            tempArray = targetFlowArray.slice();
-            targetFlowArray = [];
+
+        while (currentSize < finalSize) {
+            console.log("currentSize: " + currentSize + " finalSize: " + finalSize);
+            tempArray.length = 0;
+            tempArray.push.apply(tempArray, output);
+            output.length = 0;
 
             tempArray.forEach(flow => {
-                if (this.length(flow) > 4 && currentSize < size) {
-                    var randomPosition = Math.floor(Math.random() * (this.length(flow) - 4));
-                    var splitedFlows = this.split(flow, randomPosition + 2);
-                    targetFlowArray.push(splitedFlows[0]);
-                    targetFlowArray.push(splitedFlows[1]);
+
+                if (this.length(flow) > 4 && currentSize < finalSize) {
+                    let randomPosition = Random.nextInt(this.length(flow) - 4);
+                    output.push.apply(output, this.split(flow, randomPosition + 2));
+                 
                     currentSize++;
-                } else if (this.length(flow) == 4 && currentSize < size) {
-                    var splitedFlows = this.split(flow, 2);
-                    targetFlowArray.push(splitedFlows[0]);
-                    targetFlowArray.push(splitedFlows[1]);
+                } else if (this.length(flow) == 4 && currentSize < finalSize) {
+                    output.push.apply(output, this.split(flow, 2));
                     currentSize++;
                 } else {
-                    targetFlowArray.push(flow);
+                    output.push(flow);
                 }
             });
+            break;
         }
 
-        return targetFlowArray;
+        return output;
     }
 
 
@@ -184,14 +190,16 @@ var Show = {
     }
 }
 
-var StateValueManager = {
+var StateTableGenerator = {
     pointNumber: 0,
-    width: 5, //#endregion
-    height: 5, //#endregion
-    table: [], //#endregion
-    specialPosition: null,
-    flowList: [], //#endregion
+    width: 5,
+    height: 5,
+    table: [],
+    specialPoint: null,
+    flowArray: [],
+    finalFlowList: [],
     flowNumber: -2,
+    numberFlows: 5,
 
     getNewTable() {
         var tempTable = [];
@@ -221,10 +229,18 @@ var StateValueManager = {
         return null;
     },
 
+    getNumberFlows(minFlows) {
+        let maxFlows = Math.sqrt(this.width * this.height);
+        if (minFlows > maxFlows) return minFlows;
+        this.numberFlows =  minFlows + Random.nextInt(maxFlows - minFlows + 3);
+        return this.numberFlows > maxFlows ? maxFlows : this.numberFlows;
+    },
+
     generateTable(_width, _height) {
-        this.width = _width; //#endregion
-        this.height = _height; //#endregion
-        this.table = this.getFilledColorTable();
+        this.width = _width;
+        this.height = _height;
+
+        this.table = this.getFilledFlowTable();
         return this.table;
     },
 
@@ -259,29 +275,28 @@ var StateValueManager = {
                 }
             }
         }
-        this.specialPosition = this.getSpecialPosition(tempTable);
+        this.specialPoint = this.getSpecialPosition(tempTable);
 
         return tempTable;
 
     },
 
-    getFlow(x, y) {
-        let tempTable = this.getFilledColorTable();
+    fillFlow(_table, x, y) {
 
         flow = FlowManager.getDefaultFlow();
         let tmpX = x,
             tmpY = y;
         let isEndOfPoint = false;
         while (!isEndOfPoint) {
-            var flowNumber = tempTable[tmpX][tmpY];
-            tempTable[tmpX][tmpY] = 1;
-            FlowManager.add(flow, tmpX * width + tmpY);
+            let _flowNumber = _table[tmpX][tmpY];
+            _table[tmpX][tmpY] = 1;
+            FlowManager.add(flow, tmpX * this.width + tmpY);
             isEndOfPoint = true;
             for (let dir = 0; dir < 4; dir++) {
                 let nextX = tmpX + Constants.DIRECT_X[dir],
                     nextY = tmpY + Constants.DIRECT_Y[dir];
-                if (this.isInside(nextX, nextY, width, this.height)) {
-                    if (tempTable[nextX][nextY] == numberFlow - 1) {
+                if (this.isInside(nextX, nextY)) {
+                    if (_table[nextX][nextY] == _flowNumber - 1) {
                         tmpX = nextX;
                         tmpY = nextY;
                         isEndOfPoint = false;
@@ -329,13 +344,13 @@ var StateValueManager = {
         }
     },
 
-    executeSpecialPosition(_table, actionNumber) {
-        if (this.specialPosition == null) return;
+    executeSpecialPoint(_table, actionNumber) {
+        if (this.specialPoint == null) return;
         if (actionNumber == Constants.FILL_COLOR) {
             this.flowNumber = -2;
 
-            let first = PointManager.getX(this.specialPosition);
-            let second = PointManager.getY(this.specialPosition);
+            let first = PointManager.getX(this.specialPoint);
+            let second = PointManager.getY(this.specialPoint);
 
             this.pointNumber = 0;
             let index = Random.nextInt(Constants.RANDOM_DIRECTS.length);
@@ -359,18 +374,19 @@ var StateValueManager = {
             }
             this.flowNumber--;
         } else {
-            /*
-            var tmpflow = Utils.createFlowList(map, specialPosition.getKey(), specialPosition.getValue());
-            if (tmpflow != null && tmpflow.length() > 0)
-                flowList.add(tmpflow);
-                */
+            var x = PointManager.getX(this.specialPoint);
+            var y = PointManager.getY(this.specialPoint);
+            var tmpflow = this.fillFlow(_table, x, y);
+            if (tmpflow != null && FlowManager.length(tmpflow) > 0)
+                this.flowArray.push(tmpflow);
+
         }
     },
 
     getFilledColorTable() {
         let tempTable = this.getDominoTable();
 
-        this.executeSpecialPosition(tempTable, Constants.FILL_COLOR);
+        this.executeSpecialPoint(tempTable, Constants.FILL_COLOR);
 
         for (let line = 0; line < this.height; line++) {
             for (let col = 0; col < this.width; col++) {
@@ -382,6 +398,25 @@ var StateValueManager = {
             }
         }
         return tempTable;
+    },
+
+    getFilledFlowTable() {
+        let tempTable = this.getFilledColorTable();
+        this.executeSpecialPoint(tempTable, Constants.CREATE_FLOW);
+        for (let line = 0; line < this.height; line++) {
+            for (let col = 0; col < this.width; col++) {
+                if (tempTable[line][col] < 0) {
+                    let tmpFlow = this.fillFlow(tempTable, line, col);
+                    this.flowArray.push(tmpFlow);
+                }
+
+            }
+        }
+        let finalSize = this.getNumberFlows(this.flowArray.length);
+        this.finalFlowList = FlowManager.getFinalFlowArray(this.flowArray, finalSize);
+
+        return tempTable;
+
     }
 
 
@@ -390,4 +425,8 @@ var StateValueManager = {
 
 
 
-console.log(StateValueManager.generateTable(5, 5));
+console.log(StateTableGenerator.generateTable(5, 5));
+console.log("array----------------------");
+console.log(StateTableGenerator.flowArray);
+console.log("---------------------------final")
+console.log(StateTableGenerator.finalFlowList);
