@@ -1,3 +1,3 @@
-font awesome: Thu vien icon 
+font awesome(https://fontawesome.com/) Thu vien icon 
 font face: Dinh nghia font moi trong css 
 google font: Thu vien ve font : (fonts.google.com)

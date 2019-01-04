@@ -35,5 +35,10 @@ p:hover{
     font-family, font-size, font-style, font-weight; 
     color, text-align, text-decoration(u,i,b) 
     background-color, background-image
+
+    boder: border-width, border-radius, border-style
+    display: inline : hien thi theo hang 
+    block: luon la 1 khoi -> chiem het 1 hang, 
+    inline-block: 
 }
 
