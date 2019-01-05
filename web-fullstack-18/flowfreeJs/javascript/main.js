@@ -44,7 +44,7 @@ var FlowManager = {
         };
     },
 
-    getPointArray(flow) {
+    length(flow) {
         return flow == null ? null : flow.pointArray;
     },
 
@@ -85,35 +85,59 @@ var FlowManager = {
 
     },
 
+    getMaxLength(flowArray) {
+
+        let maxIndex = 0,
+            maxLength = this.length(flowArray[0]);
+        flowArray.forEach((flow, index) => {
+            if (this.length(flow) > maxLength) {
+                maxLength = this.length(flow);
+                maxIndex = index;
+            }
+        });
+
+        return {
+            index: maxIndex,
+            value: maxLength
+        };
+    },
+
     getFinalFlowArray(input, finalSize) {
         let output = [];
         let tempArray = [];
+
         output.push.apply(output, input);
         let currentSize = input.length;
 
 
         while (currentSize < finalSize) {
             //  console.log("currentSize: " + currentSize + " finalSize: " + finalSize);
+
             tempArray.length = 0;
             tempArray.push.apply(tempArray, output);
             output.length = 0;
+            let index = this.getMaxLength(tempArray).index;
+            let flow = tempArray[index];
+            output.push.apply(output, tempArray.slice(0, index));
+            output.push.apply(output, tempArray.slice(index + 1));
 
-            tempArray.forEach(flow => {
+            if (this.length(flow) > 4) {
+                let randomPosition = Random.nextInt(this.length(flow) - 4);
+                output.push.apply(output, this.split(flow, randomPosition + 2));
 
-                if (this.length(flow) > 4 && currentSize < finalSize) {
-                    let randomPosition = Random.nextInt(this.length(flow) - 4);
-                    output.push.apply(output, this.split(flow, randomPosition + 2));
+                currentSize++;
+            } else if (this.length(flow) == 4) {
+                output.push.apply(output, this.split(flow, 2));
+                currentSize++;
+            } else {
+                output.push(flow);
+                break;
+            }
 
-                    currentSize++;
-                } else if (this.length(flow) == 4 && currentSize < finalSize) {
-                    output.push.apply(output, this.split(flow, 2));
-                    currentSize++;
-                } else {
-                    output.push(flow);
-                }
-            });
-            break;
+
+
         }
+
 
         return output;
     }
@@ -129,27 +153,7 @@ var Constants = {
     DIRECT_Y: [1, 0, -1, 0]
 }
 
-var Show = {
-    showTable(height, table) {
-        for (let i = 0; i < height; i++) {
-            Console.log(table[i]);
-        }
 
-    }, //#endregion
-
-    showState(state) {
-        console.log("---------State----------");
-        let value = state.value;
-        let firstIndex = 0,
-            secondIndex = state.width; //#endregion
-
-        while (firstIndex < state.height * state.width) {
-            console.log(value.substring(firstIndex, secondIndex));
-            firstIndex += state.width; //#endregion
-            secondIndex += state.width;
-        }
-    }
-}
 
 var ResultFlows = {
     pointNumber: 0,
@@ -353,12 +357,12 @@ var ResultFlows = {
         }
         return tempTable;
     },
-    getNumberFlows(minFlows, maxFlows) {
+    getNumberFlows(_min, _max) {
 
-        if (minFlows > maxFlows) return minFlows;
-        this.numberFlows = minFlows + Random.nextInt(maxFlows  - minFlows + 1);
+        if (_min > _max) return _min;
+        this.numberFlows = _min + Random.nextInt(_max - _min + 1);
         let root = Math.floor(Math.sqrt(this.width * this.height));
-        return maxFlows > root ? Math.random() > 0.5 ? root : this.numberFlows : this.numberFlows; 
+        return _max > root ? Math.random() > 0.4 ? root : this.numberFlows : this.numberFlows;
     },
 
     getTable() {
@@ -376,11 +380,10 @@ var ResultFlows = {
         }
 
         let minSize = this.flowArray.length,
-            maxSize = 0;
-        this.flowArray.forEach(element => {
-            maxSize += Math.floor(FlowManager.length(element));
-        });
-        let finalSize = this.getNumberFlows(minSize, maxSize);
+            maxLength = FlowManager.getMaxLength(this.flowArray).value,
+            maxSize = minSize + Math.floor(maxLength / 3),
+            finalSize = this.getNumberFlows(minSize, maxSize);
+
         this.finalFlowList = FlowManager.getFinalFlowArray(this.flowArray, finalSize);
 
         return tempTable;
@@ -391,9 +394,9 @@ var ResultFlows = {
 }
 
 var StateManager = {
-    width: 3, //#endregion
-    height: 3, //#endregion
-    value: "A.ABBCC..", //#endregion
+    width: 3,
+    height: 3,
+    value: "A.ABBCC..",
     result: [0, 1, 2, 3, 4, 5, 8, 7, 6],
 
     initDefalutState() {
@@ -427,20 +430,20 @@ var StateManager = {
         });
         return {
             width: _width,
-            height: _height, //#endregion
-            value: value, //#endregion
+            height: _height,
+            value: value,
             result: result
         };
 
     },
 
     solve(state) {
-        //#endregion
-        Show.showState(state); //#endregion
+
+        Show.showState(state);
 
         let result = state.result,
             value = state.value,
-            valueArray = []; //#endregion
+            valueArray = [];
         let currentChar = 'a';
 
         for (let index = 0; index < state.width * state.height; index++) {
@@ -460,9 +463,9 @@ var StateManager = {
             newValue += element;
         });
         Show.showState({
-            width: state.width, //#endregion
-            height: state.height, //#endregion
-            value: newValue, //#endregion
+            width: state.width,
+            height: state.height,
+            value: newValue,
             result: state.result
         });
     }
@@ -471,4 +474,26 @@ var StateManager = {
 
 }
 
-StateManager.solve(StateManager.initRandomState(8, 8));
+var Show = {
+    showTable(height, table) {
+        for (let i = 0; i < height; i++) {
+            Console.log(table[i]);
+        }
+
+    },
+
+    showState(state) {
+        console.log("---------State----------");
+        let value = state.value;
+        let firstIndex = 0,
+            secondIndex = state.width;
+
+        while (firstIndex < state.height * state.width) {
+            console.log(value.substring(firstIndex, secondIndex));
+            firstIndex += state.width;
+            secondIndex += state.width;
+        }
+    }
+}
+
+StateManager.solve(StateManager.initRandomState(15, 15));
