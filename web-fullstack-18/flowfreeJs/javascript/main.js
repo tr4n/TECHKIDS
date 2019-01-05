@@ -382,7 +382,7 @@ var ResultFlows = {
         let minSize = this.flowArray.length,
             maxLength = FlowManager.getMaxLength(this.flowArray).value,
             maxSize = minSize + Math.floor(maxLength / 3),
-            finalSize = this.getNumberFlows(minSize, maxSize);
+            finalSize = this.getNumberFlows(minSize, maxSize > 26 ? 26 : maxSize);
 
         this.finalFlowList = FlowManager.getFinalFlowArray(this.flowArray, finalSize);
 
@@ -518,6 +518,6 @@ var Show = {
     }
 }
 
-var state = (StateManager.initRandomState(6, 6));
+var state = (StateManager.initRandomState(15, 15));
 console.log(StateManager.getLevel(state));
 StateManager.solve(state);
