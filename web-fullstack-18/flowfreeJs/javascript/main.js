@@ -437,6 +437,28 @@ var StateManager = {
 
     },
 
+    getLevel(state) {
+        let value = state.value; //#endregion
+        let level = "";
+        let count = 0; //#endregion
+        console.log(value);
+        Array.from(value).forEach((element) => {
+            if (element != '.') {
+
+                if (count > 0) {
+                    level += String(count);
+                    count = 0; 
+                };
+                level += (String.fromCharCode(element.charCodeAt(0) - 'A'.charCodeAt(0) + 'a'.charCodeAt(0)));
+            } else {
+                count++;
+            };
+
+        });
+        return level;
+
+    },
+
     solve(state) {
 
         Show.showState(state);
@@ -496,4 +518,6 @@ var Show = {
     }
 }
 
-StateManager.solve(StateManager.initRandomState(15, 15));
+var state = (StateManager.initRandomState(6, 6));
+console.log(StateManager.getLevel(state));
+StateManager.solve(state);
