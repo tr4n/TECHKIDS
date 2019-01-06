@@ -16,7 +16,14 @@ img {
     height: 300px;
     border: 10px red;
     border-radius: 100%;
+    
 
+}
+
+h1{
+    position: fixed; 
+    top: calc(50%);
+    left: calc(50%);
 }
 
 

@@ -1,0 +1,10 @@
+position: static : default value of all elements
+position: relative: top,right,bottom, left -> thay doi duoc vi tri dua tren cua so trinh duyet (static) can theo vi tri static(mac dinh) cua no. 
+position: fixed: top right bottom left dua tren man hinh
+position: absolute: top right bottom left dua tren parrent cua no, (cha dau tien la static)
+
+------------------------------
+static mac dinh la static 
+
+
+transform: xoay goc do 
