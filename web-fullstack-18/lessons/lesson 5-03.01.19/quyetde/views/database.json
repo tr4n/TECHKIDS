@@ -1,16 +1,1 @@
-[{
-    "id": 0,
-    "content": "xc",
-    "yes": 0,
-    "no": 0
-}, {
-    "id": 1,
-    "content": "xc",
-    "yes": 0,
-    "no": 0
-}, {
-    "id": 2,
-    "content": "xc",
-    "yes": 0,
-    "no": 0
-}]
+[{"id":0,"content":"How are you","yes":6,"no":0},{"id":1,"content":"What your name?","yes":3,"no":0},{"id":2,"content":"Hello ","yes":1,"no":0}]
