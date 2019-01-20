@@ -2,19 +2,19 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const fs = require("fs");
 const mongoose = require('mongoose');
-const QuestionModel = require('./models/question');
+const QuestionModel = require('./modules/question');
 const app = express();
 app.use(bodyParser.urlencoded({
     extended: false
 }));
-app.use(bodyParser.json());
-
-mongoose.connect('mongodb://localhost:27017/web18', (error) => {
-    console.log(error || "Connect to mongodb success")
-});
 
 
-
+try {
+    await mongoose.connect('mongodb://localhost:27017/web18');
+    console.log("Connect to mongodb success");
+} catch (error) {
+    console.log(error);    
+}
 const Random = {
     nextInt(value) {
         return Math.floor(Math.random() * value);
@@ -67,19 +67,20 @@ app.get("/answer/:questionId", (request, response) => {
  * delete -> delete
  */
 
-app.post('api/questions', async (request, response) => {
+app.post('api/questions', (request, response) => {
     try {
         const questionContent = request.body.questionContent;
         if (questionContent.toString().length < 1) return;
-
-        const newQuestion = {
+        let questions = getQuestions();
+        let newQuestion = {
+            id: questions.length,
             content: questionContent,
-            createdAt: new Date()
+            yes: 0,
+            no: 0
         };
 
-        const result = await QuestionModel.create([newQuestion]);
-        console.log(result);
-
+        questions.push(newQuestion);
+        fs.writeFileSync("database.json", JSON.stringify(questions));
         response.json({
             success: true
         });
