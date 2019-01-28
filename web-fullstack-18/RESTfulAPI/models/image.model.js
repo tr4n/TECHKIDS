@@ -1,4 +1,4 @@
-const moongoose = require('mongoose');
+const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
 const CommentSchema = new Schema({
@@ -43,4 +43,4 @@ const ImageSchema = new Schema({
     timestamps: true
 });
 
-module.exports = moongoose.model('Image', ImageSchema);
+module.exports = mongoose.model('Image', ImageSchema);
