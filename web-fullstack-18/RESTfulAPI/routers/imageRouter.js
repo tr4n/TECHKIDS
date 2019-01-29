@@ -28,17 +28,20 @@ ImageRouter.post('/', (request, response) => {
 });
 
 ImageRouter.get('/', (request, response) => {
-    ImageModel.find({}).then(images => {
-        response.status(200).json({
-            success: 1,
-            images
+    ImageModel.find({})
+        .populate('owner', 'username name')
+        .exec()
+        .then(images => {
+            response.status(200).json({
+                success: 1,
+                images
+            })
         })
-    }).catch(error => {
-        response.json({
-            success: 0,
-            error
-        })
-    });
-
+        .catch(error => {
+            response.json({
+                success: 0,
+                error
+            })
+        });
 })
 module.exports = ImageRouter;
