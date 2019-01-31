@@ -1,6 +1,6 @@
 const express = require('express');
 const ImageRouter = express.Router();
-const ImageModel = require('../models/image.model');
+const ImageModel = require('../models/imageModel');
 
 ImageRouter.post('/', (request, response) => {
     const {
