@@ -6,6 +6,45 @@ const UserModel = require('../models/userModel');
 
 //CRUD create - read - update - delete
 
+UserRouter.get('/:id', (request, response) => {
+
+    const userId = request.params.id;
+
+    UserModel.findById(userId, (error, userFound) => {
+        if (error) {
+            response.status(500).json({
+                success: 0,
+                error
+            })
+        } else if (!userFound) {
+            response.status(404).json({
+                success: 0,
+                user: "No such user!"
+            })
+        } else {
+
+            response.json({
+                success: 1,
+                user: userFound
+            });
+        }
+    });
+});
+
+UserRouter.use((request, response, next) => {
+    const {
+        userInfo
+    } = request.session;
+    if (userInfo && userInfo.role >= 1) {
+        next();
+    } else {
+        response.status(401).json({
+            success: 0,
+            message: "Permission denied"
+        })
+    }
+})
+
 UserRouter.post('/', (request, response) => {
     const {
         username,
@@ -52,41 +91,12 @@ UserRouter.get('/', async (request, response) => {
 
 });
 
-UserRouter.get('/:id', (request, response) => {
 
-    const userId = request.params.id;
-
-    UserModel.findById(userId, (error, userFound) => {
-        if (error) {
-            response.status(500).json({
-                success: 0,
-                error
-            })
-        } else if (!userFound) {
-            response.status(404).json({
-                success: 0,
-                user: "No such user!"
-            })
-        } else {
-
-            response.json({
-                success: 1,
-                user: userFound
-            });
-        }
-    });
-});
 
 
 UserRouter.put('/:id', async (request, response) => {
-    const {
-        password,
-        name,
-        avatar,
-        gender
-    } = request.body;
-    const userId = request.params.id || {};
 
+    const userId = request.params.id || {};
     try {
         const userFound = await UserModel.findById(userId);
         if (!userFound) {
@@ -95,15 +105,10 @@ UserRouter.put('/:id', async (request, response) => {
                 user: "No such user!"
             })
         } else {
-            for (key in {
-                    name,
-                    password,
-                    avatar,
-                    gender
-                }) {
-                userFound[key] = userFound[key] || (request.body[key] || "");
+            ["name", "password", "avatar", "gender"].forEach(item => {
+                userFound[item] = request.body[item] ? request.body[item] : (userFound[item] || "");
+            })
 
-            }
             const userUpdated = await userFound.save();
             response.json({
                 success: 1,
@@ -117,36 +122,7 @@ UserRouter.put('/:id', async (request, response) => {
             error
         })
     }
-    // UserModel.findById(userId)
-    //     .then(userFound => {
-    //         if (!userFound) {
-    //             response.status(404).json({
-    //                 success: 0,
-    //                 user: "No such user!"
-    //             })
-    //         } else {
-    //             for (key in {
-    //                     name,
-    //                     password,
-    //                     avatar,
-    //                     gender
-    //                 }) {
-    //                 if (userFound[key] && request.body[key])
-    //                     userFound[key] = request.body[key];
-    //             }
-    //             return userFound.save();
 
-    //         }
-    //     })
-    //     .then(userUpdate => {
-
-    //     })
-    //     .catch(error => {
-    //         response.status(500).json({
-    //             success: 0,
-    //             error
-    //         })
-    //     });
 });
 
 
