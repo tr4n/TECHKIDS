@@ -8,7 +8,8 @@ const express = require('express');
 const moongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const apiRouter = require('./api/index');
-const userRouter = require('./api/users/routes');
+const authRouter = require('./api/auth/routes');
+const expressSession = require('express-session');
 
 const bootstrap = async () => {
     try {
@@ -22,9 +23,15 @@ const bootstrap = async () => {
             extended: false
         }));
         app.use(bodyParser.json());
+        app.use(expressSession({
+            secret: 'keyboard cat',
+            resave: false,
+            saveUninitialized: true,
+            cookie: { secure: false }
+          }))
 
         app.use('/api', apiRouter);
-     //   app.use('/api/users', userRouter);
+        app.use('/api/auth', authRouter); 
 
         //start server
         await app.listen(process.env.PORT || 3000);

@@ -10,13 +10,13 @@ userRouter.get('/:userId', async(request, response)=> {
         const userId = request.params.userId; 
         const userInfo = await userModel.findById(userId).exec();
         response.status(200).json({
-            success: 1, 
+            success: true, 
             user: userInfo
         });
     } catch (error) {
         console.log(error);
         response.status(error.status || 500).json({
-            success: 0,
+            success: false,
             error
         })
     }
@@ -30,7 +30,7 @@ userRouter.post('/', async (request, response) => {
 
         //create success
         response.status(201).json({
-            success: 1, 
+            success: true, 
             userId: newUser._id,
             message:"create user success"
         });
@@ -38,11 +38,13 @@ userRouter.post('/', async (request, response) => {
     } catch (error) {
         console.log(error);
         response.status(error.status || 500).json({
-            success: 0,
+            success: false,
             error
         })
     }
-})
+}); 
+
+
 
 
 module.exports = userRouter;
