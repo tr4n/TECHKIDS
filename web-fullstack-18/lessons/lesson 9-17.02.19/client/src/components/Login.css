@@ -1,0 +1,42 @@
+.Login{
+    background : url(http://cafefcdn.com/thumb_w/650/2018/8/28/photo1535451863091-15354518630911787352368.jpg) repeat center center;
+}
+
+.login {    
+    position: absolute; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    bottom: 0; 
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.overlay {
+    background: #000;
+    width: 100%;
+    height: 100%;
+    opacity: 0.7;
+     
+}
+.login .box{
+    position: absolute;
+    width: 700px; 
+    background: #fff; 
+    border-radius:2%; 
+    padding: 30px  ; 
+}
+.login .box .image-banner{
+    background: url(https://cdn.pixabay.com/photo/2017/12/31/05/25/portrait-3051576_960_720.jpg) no-repeat ;
+   
+}
+.login .box table{    
+    display: block ;
+    top: 0; 
+    left: 0; 
+    bottom: 0; 
+    right: 0; 
+}
+
