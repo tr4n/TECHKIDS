@@ -10,6 +10,9 @@ const bodyParser = require('body-parser');
 const apiRouter = require('./api/index');
 const authRouter = require('./api/auth/routes');
 const expressSession = require('express-session');
+const cors = require('cors');
+const admin = require ('firebase-admin');
+
 
 const bootstrap = async () => {
     try {
@@ -18,7 +21,16 @@ const bootstrap = async () => {
         //connect mongoDB
         await moongoose.connect('mongodb://localhost:27017/techkids-hotgirl');
 
+        const serviceAccount = require('./techkids-hotgirl-firebase-adminsdk-dhsr2-44bf56fffb.json');
+        admin.initializeApp({
+            credential: admin.credential.cert(serviceAccount),
+            databaseURL: "https://techkids-hotgirl.firebaseio.com"
+        });
         //middle wares
+        app.use(cors({
+            origin: ['http://localhost:3000', 'http://localhost:3001'],
+            credentials: true
+        }))
         app.use(bodyParser({
             extended: false
         }));
@@ -27,15 +39,17 @@ const bootstrap = async () => {
             secret: 'keyboard cat',
             resave: false,
             saveUninitialized: true,
-            cookie: { secure: false }
-          }))
+            cookie: {
+                secure: false
+            }
+        }))
 
         app.use('/api', apiRouter);
-        app.use('/api/auth', authRouter); 
+        app.use('/api/auth', authRouter);
 
         //start server
-        await app.listen(process.env.PORT || 3000);
-        console.log(`Server is listening on PORT ${process.env.PORT||3000} ...`);
+        await app.listen(process.env.PORT || 3001);
+        console.log(`Server is listening on PORT ${process.env.PORT||3001} ...`);
         // set PORT=8080 && npm start
 
 
@@ -46,4 +60,4 @@ const bootstrap = async () => {
     }
 }
 
-bootstrap(); 
+bootstrap();

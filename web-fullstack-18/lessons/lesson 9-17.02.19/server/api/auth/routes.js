@@ -2,6 +2,7 @@ const express = require('express');
 const bcryptjs = require('bcryptjs');
 const userModel = require('../users/model');
 const authRouter = express.Router();
+const admin = require('firebase-admin');
 
 authRouter.post('/register', async (request, response) => {
     try {
@@ -46,14 +47,16 @@ authRouter.post('/login', async (request, response) => {
 
                 request.session.authUser = {
                     id: existUser._id,
-                    username: existUser.username, 
+                    username: existUser.username,
                     fullName: existUser.fullName
                 };
                 request.session.save();
-                
+
                 response.status(200).json({
                     success: true,
-                    message: "You have registered successfully"
+                    userId: existUser._id,
+                    username: existUser.username,
+                    message: "You have logined successfully"
                 })
             } else {
                 response.status(200).json({
@@ -72,11 +75,30 @@ authRouter.post('/login', async (request, response) => {
     } catch (error) {
         console.log(error);
         response.status(error.status || 500).json({
-            success: 0,
+            success: false,
             error
         })
     }
 })
 
+authRouter.post('/facebook0auth', async (request, response) => {
+    try {
+        const {
+            idToken
+        } = request.body;
+        const result = await admin.auth().verifyIdToken(idToken);
+        console.log(result); 
 
+        response.status(200).json({
+            success: true, 
+            
+        })
+
+    } catch (error) {
+        response.status(error.status || 500).json({
+            success: false,
+            error
+        });
+    }
+})
 module.exports = authRouter;
